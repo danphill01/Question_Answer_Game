@@ -14,50 +14,82 @@ points per question change each round
 #read the csv to get the categories
 def print_hline(char='-',width=42):
     print(char*width)
+
+def populate_questions_and_answers(game_round):
+    for i,category in enumerate(categories[game_round]):
+        for point_value in range(100*(game_round+1),500*(game_round+1)+1,100*(game_round+1)):
+            questions[game_round][i][point_value]=category+" "+str(point_value)+" question"
+            answers[game_round][i][point_value]=category+" "+str(point_value)+" answer"
+
+def show_board(game_round):
+    for i,cat in enumerate(categories[game_round]):
+        if i+1==len(categories[game_round]):
+            print(" {}".format(cat))
+        else: print(" {} |".format(cat),end="")
+    print_hline('=')
+    #for each row on the board
+    for i in range(1,5+1):
+        #value of row
+        value = i*100*(game_round+1)
+        #set the indent spacing based on the size of the point value string
+        if value > 999:
+            spacing = " " 
+        else: spacing = "  "
+        #print only the active questions in each row 
+        for j in range(num_cats):
+            #check if the question has already been asked
+#            print(value,questions[game_round][j][value])
+            if value in questions[game_round][j]:
+                #question exists, check if last column
+                if j==num_cats-1:
+                    print(spacing+"{} ".format(i*100*(game_round+1)))
+                #not last row
+                else: print(spacing+"{} ".format(i*100*(game_round+1)),end="|")
+            #question has been seen, print space
+            else: 
+                #check if last column
+                if j==num_cats-1:
+                    print(" "*6)
+                #not last row
+                else: print(" "*6,end="|")
+        if i<5: print_hline()
+    print_hline('=')
+
+def board_not_empty(game_round):
+    return True
     
 print("Welcome to the game.")
 players = []
 num_players = input("\nHow many players? ")
 for i in range(1,int(num_players)+1):
     players.append(input("Player {} name? ".format(i)))
-game_round = 1
 categories = [['cat1','cat2','cat3','cat4','cat5','cat6'],['cat7','cat8','cat9','cat10','cat11','cat12']]
-num_cats = len(categories[game_round-1])
 questions = [
-             {100:"Question1",200:"Question2",300:"Question3",400:"Question4"},
-             {100:"Question5",200:"Question6"}
+             {},{},{},{},{},{}
             ],[
-             {200:"Question1b",400:"Question2b",800:"Question3b",1600:"Question4b"},
-             {200:"Question5b",400:"Question6b"}
+             {},{},{},{},{},{}
             ]
 answers = [
-             {100:"Answer1",200:"Answer2",300:"Answer3",400:"Answer4"},
-             {100:"Answer5",200:"Answer6"}
+             {},{},{},{},{},{}
             ],[
-             {200:"Answer1b",400:"Answer2b",800:"Answer3b",1600:"Answer4b"},
-             {200:"Answer5b",400:"Answer6b"}
+             {},{},{},{},{},{}
             ]
-print("Here are the categories:")
-for i,cat in enumerate(categories[game_round-1]):
-    if i+1==len(categories[game_round-1]):
-        print(" {}".format(cat))
-    else: print(" {} |".format(cat),end="")
-print_hline('=')
-for i in range(1,5+1):
-    value = i*100*game_round
-    if value > 999:
-        for j in range(1,6+1):
-            if j==num_cats:
-                print(" {} ".format(i*100*game_round))
-            else: print(" {} |".format(i*100*game_round),end="")
-    else:
-        for j in range(1,6+1):
-            if j==num_cats:
-                print("  {} ".format(i*100*game_round))
-            else: print("  {} |".format(i*100*game_round),end="")
-    if i<5: print_hline()
-print_hline('=')
-category = int(input("Select a category (1-{}) ".format(num_cats)))
-point_value = int(input("Select a point value (in hundreds) "))*100
-print("The question is:\n  {}".format(questions[game_round-1][category-1][point_value]))
-print("The answer is:\n  {}".format(answers[game_round-1][category-1][point_value]))
+for game_round in range(2):
+    num_cats = len(categories[game_round])
+
+    populate_questions_and_answers(game_round)
+    print("Here are the categories for round {}:".format(game_round+1))
+    while board_not_empty(game_round):
+        show_board(game_round)
+        category = int(input("Select a category (1-{}) ".format(num_cats)))
+        point_value = int(input("Select a point value (in hundreds) "))*100
+        print("The question is:\n  {}".format(questions[game_round][category-1][point_value]))
+        input("Press enter to see the answer")
+        print("The answer is:\n  {}".format(answers[game_round][category-1][point_value]))
+        input("Press enter to continue")
+        print("deleting {}".format(questions[game_round][category-1][point_value]))
+        del questions[game_round][category-1][point_value]
+#        print("deleted {}".format(questions[game_round][category-1][point_value]))
+        del answers[game_round][category-1][point_value]
+#        break
+
